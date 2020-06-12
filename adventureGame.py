@@ -277,7 +277,7 @@ class Player():
         success = randint(0, 10)
         damage = user.strength + user.weaponEquip.strength
         if success != 0:
-            print("You attacked the {} and did {} damage!".format(enemy.name, damage))
+            print("You attacked the {} with your {} and did {} damage!".format(enemy.name, user.weaponEquip.name, damage))
             enemy.health -= damage
             print("The {} now has {} health left!".format(enemy.name, enemy.health))
         else:
@@ -493,11 +493,11 @@ class Location():
         self.enemy = enemy
         self.npc = npc
         self.nextLocation = nextLocation
-ruinedCapitol = Location("The Ruined Capitol", "a004", dragon, hardyMerchant, "null")
-keepRuins = Location("Great Keep Ruins", "a003", troll, ghastlyMerchant, ruinedCapitol)
-greatPlains = Location("The Great Plains", "a002", goblin, wanderingMerchant, keepRuins)
-southernSettlement = Location("Southern Settlement", "a001", trainingDummy, settlementMerchant, greatPlains)
-startHouse = Location("Your house in the Southern Settlement", "a000", trainingDummy, "null", southernSettlement)
+ruinedCapitol1 = Location("The Ruined Capitol", "a004", dragon, hardyMerchant, "null")
+keepRuins1 = Location("Great Keep Ruins", "a003", troll, ghastlyMerchant, ruinedCapitol1)
+greatPlains1 = Location("The Great Plains", "a002", goblin, wanderingMerchant, keepRuins1)
+southernSettlement1 = Location("Southern Settlement", "a001", trainingDummy, settlementMerchant, greatPlains1)
+startHouse1 = Location("Your house in the Southern Settlement", "a000", trainingDummy, "null", southernSettlement1)
 
 def usePotion(potion):
     if user.health == user.maxHealth:
@@ -569,6 +569,7 @@ def loadGame():
 def explore():
     exploreNum = randint(1, 10)
     return exploreNum
+
 def inGameMenu():
     keepGoing = True
     while keepGoing:
@@ -597,9 +598,46 @@ def inGameMenu():
             mainMenu()
         elif inGameMenuInput == "6":
             quit()
+
+def merchant(area):
+    merchantName = area.npc.name
+    item = area.npc.inventory
+    itemName = area.npc.inventory.name
+    itemCost = area.npc.inventory.cost
+    keepGoingMerchant = True
+    while keepGoingMerchant:
+        print("""{}: What would you like to buy?
+0. {} : {} gold
+1. Exit the shop""".format(merchantName, itemName, itemCost))
+        merchantChoice = input("> ")
+        if merchantChoice == "0":
+            keepGoingPurchase = True
+            print("""That will cost {} gold. Purchase?
+0. No
+1. Yes""".format(itemCost))
+            purchaseChoice = input("> ")
+            if purchaseChoice == "0":
+                keepGoingPurchase = False
+            elif purchaseChoice == "1":
+                if user.gold >= itemCost:
+                    user.gold -= itemCost
+                    user.inventory.append(item)
+                    print("Bought {}, you spent {} gold. Gold remaining: {}".format(itemName, itemCost, user.gold))
+                    keepGoingPurchase = False
+                else:
+                    print("You can't afford that.")
+                    keepGoingPurchase = False
+            else:
+                print("I don't understand")
+        elif merchantChoice == "1":
+            print("{}: Goodbye".format(merchantName))
+            keepGoingMerchant = False
+        else:
+            print("I'm sorry, I didn't understand that.")
 def startHouse():
     print("You awaken in your bed to the sound of horsehooves. Instinctively, you reach for your trusty {} and climb out of your bed.".format(user.weaponEquip.name))
     print("You hurredly head towards the door, still dreary from a restless night of sleep you nearly forget your gold pouch.")
+    area = startHouse1
     keepGoing1 = True
     while keepGoing1:
         print("""What do you want to do?
@@ -628,6 +666,7 @@ def startHouse():
         else:
             print("I'm sorry, I didn't quite understand. Try getting your gold.")
 def southernSettlement():
+    area = southernSettlement1
     print("You step out of your house into the Southern Settlement. You look around and see the king has gone, and in his place the guards still stand discussing the airspeed velocity of various swallow")
     spacer1 = input("Press enter to continue")
     print("You pick up further bits of their conversation. '...great treasure' '...but no one has been to the capitol since the conflagration'")
@@ -642,15 +681,16 @@ def southernSettlement():
 3. Exit the town""")
         userChoice2 = input("> ")
         if userChoice2 == "1":
-            print("It doesn't appear the merchant is in...")
-        if userChoice2 == "2":
+            merchant(area)
+        elif userChoice2 == "2":
             print("You approach the combat dummy and ready your {}. Fight!".format(user.weaponEquip.name))
             battle(trainingDummy)
-        if userChoice2 == "3":
+        elif userChoice2 == "3":
             keepGoing2 = False
             setProgressCode("a002")
             greatPlains()
 def greatPlains():
+    area = greatPlains1
     print("You leave your cozy town and step foot into the world beyond...")
 def keepRuins():
     pass
