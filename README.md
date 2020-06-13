@@ -1,5 +1,23 @@
 # adventureGame
+Version History:
+
 version 1.0: Demo up until open world. No merchant functionality. battle function and in game menu/save&load/item menu functioning
+
+version 1.1: Added merchant() function. Updated location object names to be used in tandem with merchant() without them being mistaken for story functions of the same name
+
+version 1.2: 
+
+Added 'boss' parameter to Enemy class: Boolean True or False
+
+Now cannot flee from bosses
+
+merchant() functionality added
+
+Fixed bug where enemy health doesn't reset on player death
+
+Added to greatPlains() portion of story
+
+Added in-game item menu feature
 
 documentation below:
 
@@ -168,6 +186,20 @@ Provides the user with a menu to access the following features in-game:
 	return to game
 	return to main menu
 	quit game
+	
+merchant(area)
+
+takes an input of area
+keepGoing style while loop
+accesses the input area as location class
+takes location class npc parameter
+reads area.npc.name as merchantName
+reads area.npc.inventory as parameter of npc: item object in npc class inventory parameter, gets the name ‘item’
+reads itemCost from item class cost parameter
+user can purchase items which subtracts the itemCost from user.gold
+	branch: if user doesn’t have adequate gold, says user doesn’t have enough to purchase
+	else: appends item to user.inventory and subtracts itemCost from user.gold
+
 	
 Story Functions
 
