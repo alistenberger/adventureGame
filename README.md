@@ -5,6 +5,15 @@ version 1.0: Demo up until open world. No merchant functionality. battle functio
 
 version 1.1: Added merchant() function. Updated location object names to be used in tandem with merchant() without them being mistaken for story functions of the same name
 
+version 1.2: 
+
+Added 'boss' parameter to Enemy class: Boolean True or False
+Now cannot flee from bosses
+merchant() functionality added
+Fixed bug where enemy health doesn't reset on player death
+Added to greatPlains() portion of story
+Added in-game item menu feature
+
 documentation below:
 
 Adventure Game
