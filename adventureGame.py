@@ -4,14 +4,26 @@ Notes: global variables not being changed by global variable designator in funct
 Item menu, combat, experience system, and leveling system functioning.
 difficulty system functioning.
 To do:
-Incorporate merchants to purchase items from
-Implement in-game menu
-Build world by defining location functions to drive story, combat, and NPCs
-Buid save/load system
-Stress test inventory system and prevent items which do not need to be used from being used
+Boss health doesn't reset upon death [] Fixed, but needs testing
+Variables do not reset upon death, need to reinitialize upon death (i.e. hasGold) []
+Incorporate 'return to' area functions which allows for open world
+Incorporate merchants to purchase items from [x]
+Implement in-game menu [x]
+Build world by defining location functions to drive story, combat, and NPCs []
+Buid save/load system [x]
+Stress test inventory system and prevent items which do not need to be used from being used []
 Incorporate Tears of Denial's auto revive to prevent one death per playthrough (probably if user.tearsOfDenial = True/False:   replace mainMenu() in death() with keepGoing = True user.health += 100)
-Assignment of class respective legendary weapons from side quest and add effects to weapons
-Write story
+Assignment of class respective legendary weapons from side quest and add effects to weapons []
+Write story []
+
+Modifications:
+06/12/20:
+Added 'boss' parameter to Enemy class: Boolean True or False
+Now cannot flee from bosses
+merchant() functionality added
+Fixed bug where enemy health doesn't reset on player death
+Added to greatPlains() portion of story
+Added in-game item menu feature
 
 Professor Harris video (https://www.youtube.com/watch?v=e9miazksRD0)
 
@@ -400,6 +412,7 @@ Your level is: {}""".format(user.maxHealth, user.strength, user.level))
 
     hasGold = False
     hasTearsOfDenial = False
+    greatPlainsBossDefeated = False
     
 user = Player(name, level, strength, maxHealth, health, weaponEquip, gold, inventory, exp, progressCode)
 
@@ -444,12 +457,13 @@ def setGlobalProgressCode(self):
     return progressCode
 
 class Enemy():
-    def __init__(self, name, strength, maxHealth, health, expGiven):
+    def __init__(self, name, strength, maxHealth, health, expGiven, boss=False):
         self.name = name
         self.strength = strength
         self.maxHealth = maxHealth
         self.health = health
         self.expGiven = expGiven
+        self.boss = boss
 
     def attack(self, enemy):
         success = randint(0, 10)
@@ -460,11 +474,12 @@ class Enemy():
         else:
             print("The {}'s attack missed".format(enemy.name))
 
-trainingDummy = Enemy("training dummy", 0, 100, 100, 0)
-goblin = Enemy("goblin", 10, 50, 50, 5)
-troll = Enemy("troll", 25, 150, 150, 13)
-wight = Enemy("wight", 20, 150, 150, 15)
-dragon = Enemy("dragon", 50, 500, 500, 100)
+trainingDummy = Enemy("training dummy", 0, 100, 100, 0, False)
+goblin = Enemy("goblin", 10, 50, 50, 5, False)
+goblinWarlord = Enemy("Goblin Warlord", 15, 100, 100, 20, True)
+troll = Enemy("troll", 25, 150, 150, 13, False)
+wight = Enemy("wight", 20, 150, 150, 15, False)
+dragon = Enemy("dragon", 50, 500, 500, 100, True)
 
 class Item():
     def __init__(self, name, effect, cost):
@@ -537,6 +552,7 @@ def battle(enemy):
                 if user.health <= 0:
                     keepGoing = False
                     death()
+                    enemy.health = enemy.maxHealth
                 user.attack(enemy)
                 if enemy.health <= 0:
                     print("The {} has been defeated. You gain strength.".format(enemy.name))
@@ -546,13 +562,16 @@ def battle(enemy):
         elif choice == "2":
             user.itemMenu()
         elif choice == "3":
-            fleeSuccess = randint(1, 4)
-            if fleeSuccess != 1:
-                keepGoing = False
-                print("You got away")
-            else:
-                print("The {} prevents your escape and calls you a chicken!".format(enemy.name))
-                enemy.attack(enemy)
+            if enemy.boss == False:
+                fleeSuccess = randint(1, 4)
+                if fleeSuccess != 1:
+                    keepGoing = False
+                    print("You got away")
+                else:
+                    print("The {} prevents your escape and calls you a chicken!".format(enemy.name))
+                    enemy.attack(enemy)
+            elif enemy.boss == True:
+                print("You can't escape!")
         else:
             print("I didn't understand that, please try again")
 
@@ -672,13 +691,17 @@ def southernSettlement():
     print("You pick up further bits of their conversation. '...great treasure' '...but no one has been to the capitol since the conflagration'")
     spacer2 = input("Press enter to continue")
     print("You decide to seek out this great treasure yourself.")
+    input("Press enter to continue")
+    print("You've unlocked the Options Menu.")
+    input("Press enter to continue")
     print("You need to prepare for your adventure. You look around town and see the villagers beginning to start their day.")
     keepGoing2 = True
     while keepGoing2:
         print("""Where would you like to go?
 1. Merchant
 2. Combat Training
-3. Exit the town""")
+3. Menu
+4. Exit the town""")
         userChoice2 = input("> ")
         if userChoice2 == "1":
             merchant(area)
@@ -686,45 +709,65 @@ def southernSettlement():
             print("You approach the combat dummy and ready your {}. Fight!".format(user.weaponEquip.name))
             battle(trainingDummy)
         elif userChoice2 == "3":
+            inGameMenu()
+        elif userChoice2 == "4":
             keepGoing2 = False
             setProgressCode("a002")
             greatPlains()
+        else:
+            print("I don't understand. Please select another option")
 def greatPlains():
     area = greatPlains1
+    exploreCounter = 0
     print("You leave your cozy town and step foot into the world beyond...")
+    print("You look around the vast plains before you, off in the distance you can see the ruins of a vast keep which once housed the kingdom guards.")
+    print("You've now unlocked the explore feature. Use it to explore your surroundings and discover objects hidden in the environment.")
+    input("Press enter to continue")
+    keepGoing = True
+    while keepGoing:
+        print("""What would you like to do?
+0. Explore
+1. Menu
+2. Proceed towards the keep ruins""")
+        userChoice = input("> ")
+        if userChoice == "0":
+            explorationVariable = randint(1, 6)
+            exploreCounter += 1
+            goldFinderMed = randint(20, 50)
+            goldFinderSmall = randint(5, 15)
+            if explorationVariable == 1:
+                print("You rummage through the remains of a merchant's cart, found {} gold!".format(goldFinderMed))
+                user.gold += goldFinderMed
+            elif explorationVariable == 2:
+                print("You explore the area, but find nothing of value")
+            elif explorationVariable == 3:
+                print("You come across a fallen soldier, you could take his weapon, but you like your {}".format(user.weaponEquip.name))
+            elif explorationVariable == 4:
+                print("You find a some gold on the ground, got {} gold!".format(goldFinderSmall))
+                user.gold += goldFinderSmall
+            else:
+                battle(area.enemy)
+        elif userChoice == "1":
+            inGameMenu()
+        elif userChoice == "2":
+            if exploreCounter >= 3:
+                if user.greatPlainsBossDefeated == False:
+                    print("You attempt to make your way to the keep ruins, but a fearsome enemy blocks your path!")
+                    battle(goblinWarlord)
+                    user.greatPlainsBossDefeated = True
+                else:
+                    keepGoing = False
+                    keepRuins()
+            else:
+                print("I should explore more.")
+        else:
+            print("I'm sorry, I don't understand. Please try another command.")
+                
 def keepRuins():
-    pass
+    print("You enter into the ruins of the once great keep, now abandoned and deviod of human life.")
 def ruinedCapitol():
     pass
 
 def loadArea(progressCode):
     setLocation(user.progressCode)
 
-
-
-mainMenu()
-
-
-user.inventory.append(healthPotionSmall)
-user.inventory.append(healthPotionSmall)
-user.inventory.append(healthPotionSmall)
-user.inventory.append(healthPotionSmall)
-user.inventory.append(healthPotionMedium)
-user.inventory.append(healthPotionMedium)
-user.inventory.append(healthPotionMedium)
-#user.getStats()
-#battle(goblin)
-#user.health
-#user.levelUp()
-#user.levelUp()
-#user.levelUp()
-#user.getStats()
-#battle(troll)
-#battle(wight)
-#user.levelUp()
-#user.levelUp()
-#user.levelUp()
-#user.levelUp()
-#user.levelUp()
-#user.levelUp()
-#battle(dragon)
