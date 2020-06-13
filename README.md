@@ -8,10 +8,15 @@ version 1.1: Added merchant() function. Updated location object names to be used
 version 1.2: 
 
 Added 'boss' parameter to Enemy class: Boolean True or False
+
 Now cannot flee from bosses
+
 merchant() functionality added
+
 Fixed bug where enemy health doesn't reset on player death
+
 Added to greatPlains() portion of story
+
 Added in-game item menu feature
 
 documentation below:
