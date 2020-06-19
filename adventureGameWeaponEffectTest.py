@@ -298,11 +298,11 @@ class SuperWeapon(Weapon):
         self.cost = cost
         self.description = description
 excalibur = SuperWeapon("Excalibur", 30, "adds random damage", 1000, "A sword of legend, once wielded by a great king. It is only passed to those deemed worthy of wielding it.")
-dragonBoneDagger = SuperWeapon("Dragon Bone Dagger", 10, "attacks four times", 1000, "A dagger carved by an ancient hero from the bones of a dragon he once slew. It is only passed to those deemed worthy of wielding it.")
+dragonBoneDagger = SuperWeapon("Dragon Bone Dagger", 7, "attacks three times", 1000, "A dagger carved by an ancient hero from the bones of a dragon he once slew. It is only passed to those deemed worthy of wielding it.")
 avelyn = SuperWeapon("Avelyn", 12, "attacks 3 times and take less damage when attacking", 1000, "A repeating crossbow once cherished by an ancient blacksmith. It is only passed to those deemed worthy of wielding it.")
 izalithStaff = SuperWeapon("Izalith Staff", 16, "adds elemental damage", 1000, "A lost staff from an ancient civilization. It is only passed to those deemed worthy of wielding it.")
 sword = Weapon("sword", 10, "Just a sword", 50, excalibur)
-dagger = Weapon("dagger", 5, "Attack three times in a turn", 10, dragonBoneDagger)
+dagger = Weapon("dagger", 3, "Attack two times in a turn", 10, dragonBoneDagger)
 bow = Weapon("bow and arrows", 7, "Take less damage when attacking", 50, avelyn)
 staff = Weapon("magic staff", 8, "Apply elemental damage", 100, izalithStaff)
 
@@ -356,6 +356,16 @@ class Player():
 
     def attack(self, enemy):
         success = randint(0, 10)
+        if user.weaponEquip == dagger or user.weaponEquip == dragonBoneDagger:
+            damage = (user.strength/2) + user.weaponEquip.strength
+        elif user.weaponEquip == staff:
+            damage = user.weaponEquip.strength + user.strength + randint(1, 5)
+        elif user.weaponEquip == izalithStaff:
+            damage = user.weaponEquip.strength + user.strength + randint(10, 29)
+        elif user.weaponEquip == excalibur:
+            damage = user.weaponEquip.strength + user.strength + randint(1, 10)
+        else:
+            damage = user.weaponEquip.strength + user.strength
         damage = user.strength + user.weaponEquip.strength
         if success != 0:
             print("You attacked the {} with your {} and did {} damage!".format(enemy.name, user.weaponEquip.name, damage))
@@ -568,8 +578,14 @@ class Enemy():
     def attack(self, enemy):
         success = randint(0, 10)
         if success != 0:
-            print("The {} attacks you! You take {} damage!".format(enemy.name, enemy.strength))
-            user.health -= enemy.strength
+            if user.weaponEquip == bow and enemy != trainingDummy:
+                damage = enemy.strength - randint(1, 5)
+            elif user.weaponEquip == avelyn and enemy != trainingDummy:
+                damage = enemy.strength - randint(5, 10)
+            else:
+                damage = enemy.strength
+            print("The {} attacks you! You take {} damage!".format(enemy.name, damage))
+            user.health -= damage
             print("Your health is now {}.".format(user.health))
         else:
             print("The {}'s attack missed".format(enemy.name))
@@ -643,10 +659,19 @@ def battle(enemy):
         choice = input("> ")
         if choice == "1":
             if userRoll >= enemyRoll:
-                user.attack(enemy)
+                if user.weaponEquip == avelyn or user.weaponEquip == dragonBoneDagger:
+                    user.attack(enemy)
+                    user.attack(enemy)
+                    user.attack(enemy)
+                elif user.weaponEquip == dagger:
+                    user.attack(enemy)
+                    user.attack(enemy)
+                else:
+                    user.attack(enemy)
                 if enemy.health <= 0:
-                    print("The {} has been defeated. You gain strength. Got {} gold!".format(enemy.name, goldFinderEnemy))
+                    print("The {} has been defeated. You gain strength.".format(enemy.name))
                     if enemy != trainingDummy:
+                        print("Got {} gold!".format(goldFinderEnemy))
                         user.gold += goldFinderEnemy
                         user.enemiesSlain += 1
                         user.enemiesRemaining -= 1
@@ -679,10 +704,19 @@ def battle(enemy):
                         keepGoing = False
                         enemy.health = enemy.maxHealth
                         death()
-                user.attack(enemy)
+                if user.weaponEquip == avelyn or user.weaponEquip == dragonBoneDagger:
+                    user.attack(enemy)
+                    user.attack(enemy)
+                    user.attack(enemy)
+                elif user.weaponEquip == dagger:
+                    user.attack(enemy)
+                    user.attack(enemy)
+                else:
+                    user.attack(enemy)
                 if enemy.health <= 0:
-                    print("The {} has been defeated. You gain strength. Got {} gold!".format(enemy.name, goldFinderEnemy))
+                    print("The {} has been defeated. You gain strength.".format(enemy.name))
                     if enemy != trainingDummy:
+                        print("Got {} gold!".format(goldFinderEnemy))
                         user.gold += goldFinderEnemy
                         user.enemiesSlain += 1
                         user.enemiesRemaining -= 1
