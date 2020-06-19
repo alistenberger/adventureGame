@@ -52,7 +52,13 @@ Bosses now drop a random amount of gold upon defeating them
 Added sub class SuperWeapon(Weapon) and weapons to it. Super Weapons are now assigned to the Player based off of starting weapon and completion of side quest
 
 6/18/20:
-Begn recoding lost progress for weapon effects, balancing, removing gold from training dummy enemy and enemies slain count. Ruined Capitol story portion.
+Began recoding lost progress for weapon effects, balancing, removing gold from training dummy enemy and enemies slain count. Ruined Capitol story portion.
+Added fortressThreshold area
+
+6/19/20:
+Necromancer fight fix
+Undead dragon fight fix
+Wrote fortress threshold story segment
 
 directory: cd /C/Users/Alsty/Desktop/Classes/CSCI_23000/adventureGame
 git push: git push -u https://github.com/alistenberger/adventureGame.git
@@ -227,6 +233,8 @@ def newGameVariables():
     user.greatPlainsBossDefeated = False
     user.keepRuinsBossDefeated = False
     user.ruinedCapitolBossDefeated = False
+    user.fortressThresholdExplored = False
+    user.fortressLeverPulled = False
     user.enemiesSlain = 0
 
 def newGame(gameDifficulty):
@@ -523,6 +531,8 @@ Total Enemies Slain: {}""".format(user.name, user.level, user.strength, user.max
     greatPlainsBossDefeated = False
     keepRuinsBossDefeated = False
     ruinedCapitolBossDefeated = False
+    fortressThresholdExplored = False
+    fortressLeverPulled = False
     
 user = Player(name, level, strength, maxHealth, health, weaponEquip, gold, inventory, exp, progressCode)
 
@@ -597,6 +607,8 @@ troll = Enemy("troll", 25, 150, 150, 13, False)
 ghastlyTroll = Enemy("ghastly troll", 30, 250, 250, 30, True)
 wight = Enemy("wight", 20, 150, 150, 15, False)
 undeadDragon = Enemy("Undead Dragon", 30, 300, 300, 40, True)
+undeadWarrior = Enemy("Undead Warrior", 25, 200, 200, 20, False)
+undeadEliteGuard = Enemy("Undead Elite Guard", 25, 250, 250, 23, False)
 dragon = Enemy("dragon", 50, 500, 500, 100, True)
 
 class Item():
@@ -628,7 +640,9 @@ class Location():
         self.enemy = enemy
         self.npc = npc
         self.nextLocation = nextLocation
-ruinedCapitol1 = Location("The Ruined Capitol", "a004", dragon, hardyMerchant, "null")
+kingsFortress1 = Location("The king's fortress", "a020", undeadEliteGuard, "null", "null")
+fortressThreshold1 = Location("Fortress Threshold", "a010", undeadWarrior, "null", "null")
+ruinedCapitol1 = Location("The Ruined Capitol", "a004", wight, hardyMerchant, fortressThreshold1)
 keepRuins1 = Location("Great Keep Ruins", "a003", troll, ghastlyMerchant, ruinedCapitol1)
 ancientLake1 = Location("The Ancient Lake", "a006", "null", ladyInTheLake, keepRuins1)
 greatPlains1 = Location("The Great Plains", "a002", goblin, wanderingMerchant, keepRuins1)
@@ -1168,6 +1182,11 @@ If you choose to continue, I can aid you should you prove to be worthy of such a
 
 def ruinedCapitol():
     area = ruinedCapitol1
+    if user.exploredRuinedCapitol == True:
+        exploreCounter = 3
+    else:
+        exploreCounter = 0
+    attackCounter = 0
     print("You travel for days, eventually arriving at the old capitol. Once a thriving city at the heart of the kingdom, it has been reduced to charred rubble and ash.")
     input("Press enter to continue")
     print("At the center of the city lies the king's fortress, and further still inside, the throne room, where the king once displayed his vast collection of acquired treasures.")
@@ -1175,7 +1194,6 @@ def ruinedCapitol():
     print("Without a living soul in sight, you step across the gate threshold and enter into the dead city.")
     keepGoingCapitol = True
     while keepGoingCapitol:
-        exploreCounter = 0
         print("""What would you like to do?
 0. Explore
 1. Menu
@@ -1207,9 +1225,9 @@ def ruinedCapitol():
                 if user.ruinedCapitolBossDefeated == False:
                     print("You attempt to make your way to the fortress threshold, but a dimuitive old man blocks your path!")
                     print("You encounter a necromancer!")
+                    user.exploredRuinedCapitol = True
                     keepGoingNecromancer = True
                     while keepGoingNecromancer:
-                        attackCounter = 0
                         print("""What would you like to do?
                         1. Attack
                         2. Item
@@ -1225,18 +1243,22 @@ def ruinedCapitol():
                                 print("You attack the necromancer with your {} and did 0 damage!".format(user.weaponEquip.name))
                                 input("Press enter to continue")
                                 print("Necromancer: Did you know a great dragon once laid waste to this entire region?")
+                                attackCounter += 1
                             elif attackCounter == 2:
                                 print("You attack the necromancer with your {} and did 0 damage!".format(user.weaponEquip.name))
                                 input("Press enter to continue")
                                 print("Necromancer: It raged for weeks on end, bringing destruction and ruin to all those unfortunate to meet it.")
+                                attackCounter += 1
                             elif attackCounter == 3:
                                 print("You attack the necromancer with your {} and did 0 damage!".format(user.weaponEquip.name))
                                 input("Press enter to continue")
                                 print("Necromancer: Unfortunately, it too met its own end long ago")
+                                attackCounter += 1
                             elif attackCounter == 4:
                                 print("You attack the necromancer with your {} and did 0 damage!".format(user.weaponEquip.name))
                                 input("Press enter to continue")
                                 print("Necromancer: But, that can be rectified...")
+                                attackCounter += 1
                             elif attackCounter == 5:
                                 print("You attack the necromancer with your {} and find your mark. Suddenly, a blinding flash erupts from where the necromancer once stood.".format(user.weaponEquip.name))
                                 input("Press enter to continue")
@@ -1250,9 +1272,9 @@ def ruinedCapitol():
                             print("There's no time for that nonsense, ATTACK!")
                     print("The dragon slams down to the ground in front of you, splintering the roadway below.")
                     battle(undeadDragon)
+                    print("The dragon flails wildly as you strike a damaging blow, spewing fire angrily, it flies away into the night..")
                     print("You found {} extra gold!".format(goldFinderBoss))
                     user.gold += goldFinderBoss
-                    user.exploredRuinedCapitol = True
                     user.ruinedCapitolBossDefeated = True
                 else:
                     keepGoingCapitol = False
@@ -1266,7 +1288,71 @@ def ruinedCapitol():
             keepRuins()
 
 def fortressThreshold():
-        pass
+    area = fortressThreshold1
+    if user.fortressThresholdExplored == True:
+        exploreCounter = 5
+        print("The drawbridge to enter into the fortress is down, allowing you access to the interior of the fortress.")
+    else:
+        exploreCounter = 0
+        print("As you approach the fortress, you notice the drawbridge used to cross the moat is withdrawn. You need to find another way in.")
+        input("Press enter to continue")
+        print("Undead warriors, victims of the dragon's rage long ago, begin to rise all around you.")
+    attackCounter = 0
+    keepGoingThreshold = True
+    while keepGoingThreshold:
+        print("""What would you like to do?
+0. Explore
+1. Menu
+2. Proceed into the fortress
+3. Return to the Ruined Capitol""")
+        userChoiceThreshold = input("> ")
+        if userChoiceThreshold == "0":
+            explorationVariable = randint(1, 8)
+            exploreCounter += 1
+            goldFinderMed = randint(20, 50)
+            goldFinderSmall = randint(5, 15)
+            if explorationVariable == 1:
+                print("You enter into a ruined shop and rummage through the remains of a destroyed chest, found {} gold!".format(goldFinderMed))
+                user.gold += goldFinderMed
+            elif explorationVariable == 2:
+                print("You explore the area, but find nothing of value")
+            elif explorationVariable == 3:
+                print("You slay an undead warrior, you could take his weapon, but you like your {}".format(user.weaponEquip.name))
+            elif explorationVariable == 4:
+                print("You find a some gold strewn on the ground, got {} gold!".format(goldFinderSmall))
+                user.gold += goldFinderSmall
+            elif exploreCounter >= 5 and user.fortressLeverPulled == False:
+                print("""After a long time searching, you find a lever in a guard shack. Pull the lever?
+0. Yes
+1. No""")
+                leverChoice = input("> ")
+                if leverChoice == "0":
+                    print("You pull the lever and the drawbridge begins to lower.")
+                    user.fortressLeverPulled = True
+                    user.fortressThresholdExplored = True
+                elif leverChoice == "1":
+                    print("You don't pull the lever")
+                else:
+                    print("I don't understand. Please select another option.")
+            else:
+                battle(area.enemy)
+        elif userChoiceThreshold == "1":
+            inGameMenu()
+        elif userChoiceThreshold == "2":
+            if user.fortressLeverPulled == True:
+                print("You fight your way across the drawbridge and enter into the fortress.")
+                keepGoingThreshold = False
+                kingsFortress()
+            else:
+                print("I need to find a way to lower the bridge.")      
+        elif userChoiceThreshold == "3":
+            keepGoingThreshold = False
+            ruinedCapitol()
+        else:
+            print("I do not understand. Please select another option.")
+
+def kingsFortress():
+    pass
                 
 
 
