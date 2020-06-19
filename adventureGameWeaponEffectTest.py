@@ -1,25 +1,25 @@
 """
 Functions in python console, but not virtural environments like pythonanywhere
-Notes: global variables not being changed by global variable designator in function although returned.
-Item menu, combat, experience system, and leveling system functioning.
-difficulty system functioning.
+Notes: Requires the installation of the dill module for save/load feature
 To do:
+Expand upon enemy damage in combat []
+Add enemy defense modifier []
 Make explored player class variable set explore counter to minimum of 3 so return to areas dont require exploration [x] done. Needs testing
 Enemies slain/enemies remaining not functioning [x]
 Add merchants to story areas. [x]
-Add branching sidequest to obtain tears of denial/super weapons []
+Add branching sidequest to obtain tears of denial/super weapons [x]
 Boss health doesn't reset upon death [x] Fixed, but needs testing. Updated, needs further testing
-Progress variables in Player class do not reset upon death, need to reinitialize upon death and start new game (i.e. hasGold) [o] fixed needs tested
-Incorporate 'return to' area functions which allows for open world []
+Progress variables in Player class do not reset upon death, need to reinitialize upon death and start new game (i.e. hasGold) [x] fixed needs tested
+Incorporate 'return to' area functions which allows for open world [x]
 Incorporate merchants to purchase items from [x]
 Implement in-game menu [x]
-Build world by defining location functions to drive story, combat, and NPCs []
+Build world by defining location functions to drive story, combat, and NPCs [x]
 Buid save/load system [x]
 Stress test inventory system and prevent items which do not need to be used from being used []
 Incorporate Tears of Denial's auto revive [x]
 Assignment of class respective legendary weapons from side quest [x]
-add effects to weapons []
-Write story []
+add effects to weapons [x]
+Write story [x]
 
 Modifications:
 06/12/20:
@@ -59,6 +59,8 @@ Added fortressThreshold area
 Necromancer fight fix
 Undead dragon fight fix
 Wrote fortress threshold story segment
+Wrote kings fortress story segment
+wrote throne room story segment
 
 directory: cd /C/Users/Alsty/Desktop/Classes/CSCI_23000/adventureGame
 git push: git push -u https://github.com/alistenberger/adventureGame.git
@@ -235,6 +237,8 @@ def newGameVariables():
     user.ruinedCapitolBossDefeated = False
     user.fortressThresholdExplored = False
     user.fortressLeverPulled = False
+    user.throneRoomDiscovered = False
+    user.kingsFortressExplored = False
     user.enemiesSlain = 0
 
 def newGame(gameDifficulty):
@@ -533,6 +537,8 @@ Total Enemies Slain: {}""".format(user.name, user.level, user.strength, user.max
     ruinedCapitolBossDefeated = False
     fortressThresholdExplored = False
     fortressLeverPulled = False
+    kingsFortressExplored = False
+    throneRoomDiscovered = False
     
 user = Player(name, level, strength, maxHealth, health, weaponEquip, gold, inventory, exp, progressCode)
 
@@ -640,8 +646,9 @@ class Location():
         self.enemy = enemy
         self.npc = npc
         self.nextLocation = nextLocation
-kingsFortress1 = Location("The king's fortress", "a020", undeadEliteGuard, "null", "null")
-fortressThreshold1 = Location("Fortress Threshold", "a010", undeadWarrior, "null", "null")
+throneRoom1 = Location("The king's throne room", "a030", "null", "null", "null")
+kingsFortress1 = Location("The king's fortress", "a020", undeadEliteGuard, "null", throneRoom1)
+fortressThreshold1 = Location("Fortress Threshold", "a010", undeadWarrior, "null", kingsFortress1)
 ruinedCapitol1 = Location("The Ruined Capitol", "a004", wight, hardyMerchant, fortressThreshold1)
 keepRuins1 = Location("Great Keep Ruins", "a003", troll, ghastlyMerchant, ruinedCapitol1)
 ancientLake1 = Location("The Ancient Lake", "a006", "null", ladyInTheLake, keepRuins1)
@@ -1404,8 +1411,44 @@ def kingsFortress():
             print("I'm sorry, I don't understand. Please select another option.")
 
 def throneRoom():
-    pass
-
+    area = throneRoom1
+    print("You enter into the massive throne room. Unimaginable wealth surrounds you, and in the midst of it all, the king's throne sits, undisturbed since the fall of the capitol.")
+    input("Press enter to continue")
+    print("The gaping hole through which the dragon left the building looms overhead, bathing the room in a soft, moonlit glow.")
+    input("Press enter to continue")
+    keepGoingThroneRoom = True
+    while keepGoingThroneRoom:
+        print("""What would you like to do?
+0. Explore
+1. Menu
+2. Proceed to the throne
+3. Take some gold
+4. Return to the fortress""")
+        userChoiceThrone = input("> ")
+        if userChoiceThrone == "0":
+            print("You look around the room, overwhelmed by the hoard of treasure before you.")
+        elif userChoiceThrone == "1":
+            inGameMenu()
+        elif userChoiceThrone == "2":
+            print("You slowly approach the throne and sit on it, you declare yourself king of this ruined kingdom, although you may find some trouble being recognized by the rabble.")
+        elif userChoiceThrone == "3":
+            if user.throneRoomBossDefeated == False:
+                print("You approach a rather large pile of gold and prepare to take some, but you are interrupted by a roar from above as the dragon drops down to face you.")
+                input("Press enter to continue")
+                battle(dragon)
+                print("You land the deciding blow and the dragon falls at your feet, you emerge from the battle victorious. Your journey is now at an end, you have stood where none have for countless years, slew a dragon, and you have access to all the wealth you can imagine as your reward. Congratulations, you may now explore the kingdom freely.")
+                input("Press enter to continue")
+                print("You've earned the title of dragonslayer {}.".format(user.name))
+            else:
+                print("You grab a handful of gold and stuff it into your pouch.")
+                print("Got 100 gold!")
+                user.gold += 100
+        elif userChoiceThrone == "4":
+            print("You exit the throne room.")
+            keepGoingThrone = False
+            kingsFortress()
+        else:
+            print("Now is no time for such madness.")
 
 def loadArea(progressCode):
     setLocation(user.progressCode)
