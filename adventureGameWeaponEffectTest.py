@@ -1352,8 +1352,59 @@ def fortressThreshold():
             print("I do not understand. Please select another option.")
 
 def kingsFortress():
+    area = kingsFortress1
+    print("You enter into the fortress, the undead remnants of the king's elite guard now roam the halls freely.")
+    if user.kingsFortressExplored == True and user.kingsFortressBossDefeated == False:
+        print("Your journey is almost at an end. Proceed to the throne room.")
+        exploreCounter = 6
+    else:
+        print("The throne room is within reach, proceed cautiously.")
+        exploreCounter = 0
+    keepGoingFortress = True
+    while keepGoingFortress:
+        print("""What would you like to do?
+0. Explore
+1. Menu
+2. Proceed into the throne room
+3. Return to the Fortress Threshold""")
+        userChoiceFortress = input("> ")
+        if userChoiceFortress == "0":
+            explorationVariable = randint(1, 8)
+            exploreCounter += 1
+            goldFinderMed = randint(20, 50)
+            goldFinderSmall = randint(5, 15)
+            if explorationVariable == 1:
+                print("You wander the halls of the fortress and stumble upon a chest, found {} gold!".format(goldFinderMed))
+                user.gold += goldFinderMed
+            elif explorationVariable == 2:
+                print("You explore the halls of the fortress, and reach a dead end")
+            elif explorationVariable == 3:
+                print("You come across an armory within the fortress, you could take a weapon, but you like your {}".format(user.weaponEquip.name))
+            elif explorationVariable == 4:
+                print("You find a some gold strewn on the ground, got {} gold!".format(goldFinderSmall))
+                user.gold += goldFinderSmall
+            elif exploreCounter >= 6 and user.throneRoomDiscovered == False:
+                print("You discover the throne room. Finish your adventure!")
+                user.throneRoomDiscovered = True
+                user.kingsFortressExplored = True
+            else:
+                battle(area.enemy)
+        elif userChoiceFortress == "1":
+            inGameMenu()
+        elif userChoiceFortress == "2":
+            if user.throneRoomDiscovered == False:
+                print("You need to find the throne room.")
+            elif user.throneRoomDiscovered == True:
+                keepGoingFortress = False
+                throneRoom()
+        elif userChoiceFortress == "3":
+            keepGoingFortress = False
+            fortressThreshold()
+        else:
+            print("I'm sorry, I don't understand. Please select another option.")
+
+def throneRoom():
     pass
-                
 
 
 def loadArea(progressCode):
