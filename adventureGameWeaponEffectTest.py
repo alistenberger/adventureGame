@@ -2,6 +2,7 @@
 Functions in python console, but not virtural environments like pythonanywhere
 Notes: Requires the installation of the dill module for save/load feature
 To do:
+Expand enemy selection [x]
 Expand upon enemy damage in combat []
 Add enemy defense modifier []
 Make explored player class variable set explore counter to minimum of 3 so return to areas dont require exploration [x] done. Needs testing
@@ -61,6 +62,7 @@ Undead dragon fight fix
 Wrote fortress threshold story segment
 Wrote kings fortress story segment
 wrote throne room story segment
+Updated display equipment option
 
 directory: cd /C/Users/Alsty/Desktop/Classes/CSCI_23000/adventureGame
 git push: git push -u https://github.com/alistenberger/adventureGame.git
@@ -238,6 +240,7 @@ def newGameVariables():
     user.fortressThresholdExplored = False
     user.fortressLeverPulled = False
     user.throneRoomDiscovered = False
+    user.throneRoomBossDefeated = False
     user.kingsFortressExplored = False
     user.enemiesSlain = 0
 
@@ -539,6 +542,7 @@ Total Enemies Slain: {}""".format(user.name, user.level, user.strength, user.max
     fortressLeverPulled = False
     kingsFortressExplored = False
     throneRoomDiscovered = False
+    throneRoomBossDefeated = False
     
 user = Player(name, level, strength, maxHealth, health, weaponEquip, gold, inventory, exp, progressCode)
 
@@ -608,12 +612,17 @@ class Enemy():
 
 trainingDummy = Enemy("training dummy", 0, 100, 100, 0, False)
 goblin = Enemy("goblin", 10, 50, 50, 5, False)
-goblinWarlord = Enemy("Goblin Warlord", 15, 100, 100, 20, True)
+mercenary = Enemy("mercenary", 12, 60, 60, 5, False)
+highwayman = Enemy("highwayman", 12, 60, 60, 5, False)
+goblinWarlord = Enemy("Goblin Warlord", 15, 100, 100, 10, True)
 troll = Enemy("troll", 25, 150, 150, 13, False)
+goblinWarrior = Enemy("goblin warrior", 20, 125, 125, 12, False)
 ghastlyTroll = Enemy("ghastly troll", 30, 250, 250, 30, True)
 wight = Enemy("wight", 20, 150, 150, 15, False)
+phantom = Enemy("phantom", 20, 150, 150, 15, False)
 undeadDragon = Enemy("Undead Dragon", 30, 300, 300, 40, True)
 undeadWarrior = Enemy("Undead Warrior", 25, 200, 200, 20, False)
+undeadKnight = Enemy("undead knight", 22, 220, 220, 21, False)
 undeadEliteGuard = Enemy("Undead Elite Guard", 25, 250, 250, 23, False)
 dragon = Enemy("dragon", 50, 500, 500, 100, True)
 
@@ -673,6 +682,7 @@ def battle(enemy):
     goldFinderEnemy = randint(15, 50)
     keepGoing = True
     while keepGoing:
+        print("You have {} health remaining.".format(user.health))
         print("""What would you like to do?
         1. Attack
         2. Item
@@ -792,7 +802,13 @@ def inGameMenu():
         elif inGameMenuInput == "1":
             user.getStatsMenu()
         elif inGameMenuInput == "2":
-            print("Your weapon is: {}".format(user.weaponEquip.name))
+            print("""Your weapon is: {}
+Your weapon's strength is {}
+Your weapon's effect is '{}'""".format(user.weaponEquip.name, user.weaponEquip.strength, user.weaponEquip.effect))
+            if user.hasChannelingStone == True:
+                print("You have the channeling stone.")
+            if user.hasTearsOfDenial == True:
+                print("You have the Tears of Denial")
         elif inGameMenuInput == "3":
             saveGame()
             print("Saving your progress")
@@ -811,6 +827,7 @@ def merchant(area):
     itemCost = area.npc.inventory.cost
     keepGoingMerchant = True
     while keepGoingMerchant:
+        print("You have {} gold.".format(user.gold))
         print("""{}: What would you like to buy?
 0. {} : {} gold
 1. Exit the shop""".format(merchantName, itemName, itemCost))
@@ -914,7 +931,7 @@ def greatPlains():
     area = greatPlains1
     if user.greatPlainsVisited == True:
         print("You return to the Great Plains.")
-        exploreCounter = 3
+        exploreCounter = 5
     else:
         exploreCounter = 0
         print("You leave your cozy town and step foot into the world beyond...")
@@ -935,7 +952,8 @@ def greatPlains():
 5. Approach the merchant""")
         userChoice = input("> ")
         if userChoice == "0":
-            explorationVariable = randint(1, 6)
+            print("You make your way across the plains towards the keep in the distance.")
+            explorationVariable = randint(1, 8)
             exploreCounter += 1
             goldFinderMed = randint(20, 50)
             goldFinderSmall = randint(5, 15)
@@ -949,12 +967,16 @@ def greatPlains():
             elif explorationVariable == 4:
                 print("You find a some gold on the ground, got {} gold!".format(goldFinderSmall))
                 user.gold += goldFinderSmall
+            elif explorationVariable == 5:
+                battle(mercenary)
+            elif explorationVariable == 6:
+                battle(highwayman)
             else:
                 battle(area.enemy)
         elif userChoice == "1":
             inGameMenu()
         elif userChoice == "2":
-            if exploreCounter >= 3:
+            if exploreCounter >= 5:
                 goldFinderBoss = randint(50, 150)
                 if user.greatPlainsBossDefeated == False:
                     print("You attempt to make your way to the keep ruins, but a fearsome enemy blocks your path!")
@@ -1026,7 +1048,7 @@ What would you like to do?
 def keepRuins():
     area = keepRuins1
     if user.keepRuinsVisited == True:
-        exploreCounter = 3
+        exploreCounter = 5
         print("You once again enter into the ruins of the once great keep, now abandoned and deviod of human life, save for one brave merchant whom set up shop just outside the keep.")
         input("Press enter to continue")
         print("On the far side of the keep you can see a crumbling wall.")
@@ -1049,7 +1071,7 @@ def keepRuins():
             print("""You find a small stone on the ground and sense a strange energy emitting from within it. You pick the stone up and strangely feel drawn to the primordial oak tree.""")
             user.hasChannelingStone = True
         elif userChoice == "0":
-            explorationVariable = randint(1, 6)
+            explorationVariable = randint(1, 7)
             exploreCounter += 1
             goldFinderMed = randint(20, 50)
             goldFinderSmall = randint(5, 15)
@@ -1064,12 +1086,14 @@ def keepRuins():
             elif explorationVariable == 4:
                 print("You find a some gold on the ground, got {} gold!".format(goldFinderSmall))
                 user.gold += goldFinderSmall
+            elif explorationVariable == 5:
+                battle(goblinWarrior)
             else:
                 battle(area.enemy)
         elif userChoice == "1":
             inGameMenu()
         elif userChoice == "2":
-            if exploreCounter >= 3:
+            if exploreCounter >= 5:
                 goldFinderBoss = randint(150, 300)
                 if user.keepRuinsBossDefeated == False:
                     print("You attempt to make your way to the keep ruins, but a fearsome enemy blocks your path!")
@@ -1208,7 +1232,7 @@ def ruinedCapitol():
 3. Return to the Keep Ruins""")
         userChoiceCapitol = input("> ")
         if userChoiceCapitol == "0":
-            explorationVariable = randint(1, 7)
+            explorationVariable = randint(1, 8)
             exploreCounter += 1
             goldFinderMed = randint(20, 50)
             goldFinderSmall = randint(5, 15)
@@ -1222,6 +1246,10 @@ def ruinedCapitol():
             elif explorationVariable == 4:
                 print("You find a some gold strewn on the ground, got {} gold!".format(goldFinderSmall))
                 user.gold += goldFinderSmall
+            elif explorationVariable == 5:
+                battle(troll)
+            elif explorationVariable == 6:
+                battle(phantom)
             else:
                 battle(area.enemy)
         elif userChoiceCapitol == "1":
@@ -1297,7 +1325,7 @@ def ruinedCapitol():
 def fortressThreshold():
     area = fortressThreshold1
     if user.fortressThresholdExplored == True:
-        exploreCounter = 5
+        exploreCounter = 6
         print("The drawbridge to enter into the fortress is down, allowing you access to the interior of the fortress.")
     else:
         exploreCounter = 0
@@ -1314,7 +1342,7 @@ def fortressThreshold():
 3. Return to the Ruined Capitol""")
         userChoiceThreshold = input("> ")
         if userChoiceThreshold == "0":
-            explorationVariable = randint(1, 8)
+            explorationVariable = randint(1, 9)
             exploreCounter += 1
             goldFinderMed = randint(20, 50)
             goldFinderSmall = randint(5, 15)
@@ -1328,7 +1356,9 @@ def fortressThreshold():
             elif explorationVariable == 4:
                 print("You find a some gold strewn on the ground, got {} gold!".format(goldFinderSmall))
                 user.gold += goldFinderSmall
-            elif exploreCounter >= 5 and user.fortressLeverPulled == False:
+            elif explorationVariable == 5:
+                battle(undeadKnight)
+            elif exploreCounter >= 6 and user.fortressLeverPulled == False:
                 print("""After a long time searching, you find a lever in a guard shack. Pull the lever?
 0. Yes
 1. No""")
@@ -1363,7 +1393,7 @@ def kingsFortress():
     print("You enter into the fortress, the undead remnants of the king's elite guard now roam the halls freely.")
     if user.kingsFortressExplored == True and user.kingsFortressBossDefeated == False:
         print("Your journey is almost at an end. Proceed to the throne room.")
-        exploreCounter = 6
+        exploreCounter = 8
     else:
         print("The throne room is within reach, proceed cautiously.")
         exploreCounter = 0
@@ -1390,7 +1420,7 @@ def kingsFortress():
             elif explorationVariable == 4:
                 print("You find a some gold strewn on the ground, got {} gold!".format(goldFinderSmall))
                 user.gold += goldFinderSmall
-            elif exploreCounter >= 6 and user.throneRoomDiscovered == False:
+            elif exploreCounter >= 8 and user.throneRoomDiscovered == False:
                 print("You discover the throne room. Finish your adventure!")
                 user.throneRoomDiscovered = True
                 user.kingsFortressExplored = True
@@ -1436,6 +1466,7 @@ def throneRoom():
                 print("You approach a rather large pile of gold and prepare to take some, but you are interrupted by a roar from above as the dragon drops down to face you.")
                 input("Press enter to continue")
                 battle(dragon)
+                user.throneRoomBossDefeated = True
                 print("You land the deciding blow and the dragon falls at your feet, you emerge from the battle victorious. Your journey is now at an end, you have stood where none have for countless years, slew a dragon, and you have access to all the wealth you can imagine as your reward. Congratulations, you may now explore the kingdom freely.")
                 input("Press enter to continue")
                 print("You've earned the title of dragonslayer {}.".format(user.name))
