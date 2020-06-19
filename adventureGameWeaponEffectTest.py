@@ -1167,6 +1167,7 @@ If you choose to continue, I can aid you should you prove to be worthy of such a
           
 
 def ruinedCapitol():
+    area = ruinedCapitol1
     print("You travel for days, eventually arriving at the old capitol. Once a thriving city at the heart of the kingdom, it has been reduced to charred rubble and ash.")
     input("Press enter to continue")
     print("At the center of the city lies the king's fortress, and further still inside, the throne room, where the king once displayed his vast collection of acquired treasures.")
