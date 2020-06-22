@@ -70,6 +70,9 @@ Added defense parameter to Enemy and Player class objects
 Incorporated defense modifier into combat
 Balanced weapons
 
+6/22/20:
+Updated menu functions for quit and return to ask if sure
+
 directory: cd /C/Users/Alsty/Desktop/Classes/CSCI_23000/adventureGame
 git push: git push -u https://github.com/alistenberger/adventureGame.git
 
@@ -850,7 +853,7 @@ def inGameMenu():
 3. Save Game
 4. Return to Game
 5. Main Menu
-6. Quit""")
+6. Quit Game""")
         inGameMenuInput = input("> ")
         if inGameMenuInput == "0":
             user.itemMenu()
@@ -871,11 +874,35 @@ Your weapon's effect is '{}'""".format(user.weaponEquip.name, user.weaponEquip.s
         elif inGameMenuInput == "4":
             keepGoing = False
         elif inGameMenuInput == "5":
-            keepGoing = False
-            mainMenu()
+            keepGoingReturn = True
+            while keepGoingReturn:
+                print("""Are you sure you want to return to the menu? All unsaved progress will be lost.
+0. Yes
+1. No""")
+                returnInput = input("> ")
+                if returnInput == "0":
+                    keepGoingReturn = False
+                    keepGoing = False
+                    mainMenu()
+                elif returnInput == "1":
+                    keepGoingReturn = False
+                else:
+                    print("I'm sorry, I didn't quite understand that.")
         elif inGameMenuInput == "6":
-            keepGoing = False
-            quit()
+            keepGoingQuit = True
+            while keepGoingQuit:
+                print("""Are you sure you want to quit the game? All unsaved progress will be lost.
+0. Yes
+1. No""")
+                quitInput = input("> ")
+                if quitInput == "0":
+                    keepGoingQuit = False
+                    keepGoing = False
+                    quit()
+                elif quitInput == "1":
+                    keepGoingQuit = False
+                else:
+                    print("I'm sorry, I didn't quite understand that.")
 
 def merchant(area):
     merchantName = area.npc.name
